@@ -1,22 +1,28 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import './globals.css'
+import { Inter as FontSans } from "next/font/google"
+import { cn } from "@/lib/utils"
+import { Toaster } from '@/components/ui/toaster'
 
-const inter = Inter({ subsets: ["latin"], variable: "--main-font" });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--main-font",
+})
 
-export const metadata: Metadata = {
-  title: "ChatterPay for business",
-  description: "ChatterPay dashboard for administrating QR codes and stores",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body
+        className={cn(
+          "min-h-screen bg-background antialiased",
+          fontSans.className,
+        )}
+      >
+        <main className="flex min-h-screen flex-col">
+          {children}
+        </main>
+        <Toaster />
+      </body>
     </html>
-  );
+  )
 }
