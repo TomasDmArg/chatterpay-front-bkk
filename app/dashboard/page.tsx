@@ -4,11 +4,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users2, Receipt, Building2 } from 'lucide-react';
+import { Users2, Receipt, Building2, LogOut } from 'lucide-react';
 import { CashierDialog } from '@/components/CashierDialog';
 import { TransactionsTable } from '@/components/TransactionsTable';
 import { Cashier, Transaction } from '@/types/main';
 import { CashiersTable } from '@/components/CashierTable';
+import Avvvatars from 'avvvatars-react'
 
 export default function DashboardPage() {
   const [cashiers, setCashiers] = useState<Cashier[]>([
@@ -67,12 +68,22 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between"
       >
+
+        <h1 className="text-4xl font-bold tracking-tight flex flex-row items-center gap-3">
+            <Avvvatars value="myStore" size={50} style='shape' />
+            My Store
+        </h1>
+        <div className="flex gap-2">
+          <Button onClick={() => window.location.href = '/edit-business'}>
+            <Building2 className="mr-2 h-4 w-4" />
+            Edit Business
+          </Button>
+          <Button variant="outline" onClick={() => window.location.href = '/'}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
         
-        <h1 className="text-4xl font-bold tracking-tight">My Store</h1>
-        <Button onClick={() => window.location.href = '/edit-business'}>
-          <Building2 className="mr-2 h-4 w-4" />
-          Edit Business
-        </Button>
       </motion.div>
 
       <motion.div

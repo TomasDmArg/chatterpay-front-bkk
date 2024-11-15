@@ -22,14 +22,14 @@ export function CashiersTable({ cashiers, onDelete }: CashiersTableProps) {
       <TableBody>
         {cashiers.map((cashier) => (
           <TableRow key={cashier.id}>
-            <TableCell className="font-medium">{cashier.name}</TableCell>
-            <TableCell>
+            <TableCell className="font-medium py-2">{cashier.name}</TableCell>
+            <TableCell className="py-2">
               <Badge variant="outline" className="bg-green-100 text-green-800">
                 {cashier.status}
               </Badge>
             </TableCell>
-            <TableCell>{cashier.transactions}</TableCell>
-            <TableCell className="text-right">
+            <TableCell className="py-2">{cashier.transactions}</TableCell>
+            <TableCell className="text-right py-2">
               <CashierActions onDelete={onDelete} cashier={cashier} />
             </TableCell>
           </TableRow>

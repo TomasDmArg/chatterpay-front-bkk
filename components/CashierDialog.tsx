@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Plus } from 'lucide-react';
+import { CrossIcon, Plus, PlusIcon, X } from 'lucide-react';
 
 interface CashierDialogProps {
   isOpen: boolean;
@@ -27,20 +27,24 @@ export function CashierDialog({ isOpen, onOpenChange, onSubmit, newCashierName, 
           <DialogDescription>Enter the details of the new cashier.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="cashierName" className="text-right">Name</Label>
+            <Label htmlFor="cashierName" className="text-left">Name</Label>
             <Input
-              id="cashierName"
-              value={newCashierName}
-              onChange={(e) => setNewCashierName(e.target.value)}
-              className="col-span-3"
-              placeholder="Enter cashier name"
+                id="cashierName"
+                value={newCashierName}
+                onChange={(e) => setNewCashierName(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter cashier name"
             />
-          </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={onSubmit}>Add Cashier</Button>
+            <Button className='flex flex-row items-center gap-3' variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+                <X />
+            </Button>
+            <Button className='flex flex-row items-center gap-3' onClick={onSubmit}>
+                Add Cashier
+                <PlusIcon />
+            </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

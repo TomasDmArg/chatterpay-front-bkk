@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
 import { Cashier } from '@/types/main';
-import { Download, Trash2, ChevronDown } from 'lucide-react';
+import { Download, Trash2, ChevronDown, QrCode } from 'lucide-react';
 
 interface CashierActionsProps {
   cashier: Cashier;
@@ -70,27 +70,18 @@ export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
-          Actions <ChevronDown className="ml-2 h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Manage Cashier</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleQRCodeDownload}>
-          <Download className="mr-2 h-4 w-4" />
-          Download QR Code
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          className="text-red-600"
-          onClick={handleDelete}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete Cashier
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex gap-2 w-full flex flex-row items-center justify-end">
+      <Button variant="ghost" size="sm" onClick={handleQRCodeDownload}>
+        <QrCode className="h-4 w-4" />
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="sm"
+        onClick={handleDelete}
+        className="text-red-600 hover:text-red-700"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }
