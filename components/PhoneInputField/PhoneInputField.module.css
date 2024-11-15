@@ -1,0 +1,51 @@
+/* src/components/atoms/PhoneInputField/PhoneInputField.module.css */
+/* Container styles */
+.react-tel-input {
+    @apply font-sans;
+}
+
+/* Input field styles */
+.react-tel-input .form-control {
+    @apply w-full h-10 px-3 py-2 text-sm bg-background text-foreground border border-input rounded-md ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    padding-left: 48px !important;
+    width: 100% !important;
+}
+
+/* Flag button styles */|z
+.react-tel-input .flag-dropdown {
+    @apply border-0 bg-transparent;
+}
+
+.react-tel-input .selected-flag {
+    @apply bg-transparent h-10 rounded-l-md hover:bg-accent hover:text-accent-foreground transition-colors;
+    width: 40px !important;
+}
+
+.react-tel-input .selected-flag:focus {
+    @apply bg-accent;
+}
+
+/* Dropdown styles */
+.react-tel-input .country-list {
+    @apply text-popover-foreground bg-popover border border-input rounded-md shadow-md animate-in fade-in-80 zoom-in-95;
+    margin-top: 4px !important;
+}
+
+.react-tel-input .country-list .country {
+    @apply px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors;
+}
+
+.react-tel-input .country-list .country.highlight {
+    @apply bg-accent text-accent-foreground;
+}
+
+/* Search field styles */
+.react-tel-input .search-box {
+    @apply bg-background text-foreground border border-input rounded-md px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    margin: 8px !important;
+}
+
+/* Dropdown divider */
+.react-tel-input .divider {
+    @apply border-border;
+}

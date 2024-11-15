@@ -67,3 +67,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+.form-control{
+  @apply relative flex h-10 w-fit items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md !important;
+  width: 100% !important;
+  height: 50px !important;
+  font-family: var(--main-font), sans-serif !important;
+}
+
+.flag-dropdown {
+  @apply flex h-10 w-[40px] bg-transparent border-none p-0 !important; 
+}
+
+.flag-dropdown {
+  @apply flex h-[50px] w-[40px] bg-transparent border-none p-0 !important; 
+}
