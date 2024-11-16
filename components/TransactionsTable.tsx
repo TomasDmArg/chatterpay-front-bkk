@@ -16,6 +16,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           <TableHead>Type</TableHead>
           <TableHead>Amount</TableHead>
           <TableHead>Date</TableHead>
+          <TableHead>Blockscout explorer</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -37,6 +38,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
               </Badge>
             </TableCell>
             <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
+            <TableCell>{transaction.transactionHash}</TableCell>
           </TableRow>
         ))}
       </TableBody>

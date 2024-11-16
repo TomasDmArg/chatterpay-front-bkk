@@ -27,6 +27,7 @@ export interface PaymentOrder {
   network: string
   cashier: Cashier
   createdAt: string
+  transactionHash: string
   __v: number
 }
 
