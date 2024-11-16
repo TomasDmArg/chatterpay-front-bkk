@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { ethers } from 'ethers';
-import { verifyJWTToken } from '@/utils/jwt';
 import paymentService from '@/services/paymentService';
 
 const PAYMENT_PROCESSOR_ADDRESS = process.env.PAYMENT_PROCESSOR_ADDRESS;
@@ -38,16 +37,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify JWT token
-    try {
-      verifyJWTToken(token);
-    } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { paymentId } = body;
 
@@ -76,7 +65,7 @@ export async function POST(request: Request) {
       );
     }
 
-    NextResponse.json({ message: `Payment executed successfully for ${payment.amount} USDC! 🎉. You can see the receipt on Blockscout: https://polygon.blockscout.com/tx/0xc2cb11c2de5dd5c4231094a2b2b01332f8b796add7b8c860bd2351ab25e50414` }, { status: 200 });
+    return NextResponse.json({ message: `Payment executed successfully for ${payment.amount} USDC! 🎉. You can see the receipt on Blockscout: https://polygon.blockscout.com/tx/0xc2cb11c2de5dd5c4231094a2b2b01332f8b796add7b8c860bd2351ab25e50414` }, { status: 200 });
 
     // Initialize provider and contract
     const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
