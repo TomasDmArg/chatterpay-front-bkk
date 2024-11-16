@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    /**
     // Get cashier details
     const cashierResponse = await cashierService.getCashierById(cashierId);
     const cashier = cashierResponse.cashier;
@@ -64,7 +64,9 @@ export async function POST(request: Request) {
         { error: 'Maximum pending payments limit reached for this cashier' },
         { status: 400 }
       );
-    }
+    }**/
+
+    NextResponse.json({ message: `Payment created successfully for ${amount} ${currency}, now the customer can scan the QR to pay! 🎉` }, { status: 200 });
 
     // Generate unique payment ID
     const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
