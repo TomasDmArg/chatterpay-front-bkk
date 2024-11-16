@@ -41,14 +41,14 @@ export const connectWithChatterPay = async (channel_user_id: string, app_name: s
  * Verifies connection with OTP code
  */
 export const verifyConnection = async (channel_user_id: string, code: string): Promise<ConnectResponse> => {
-  const response = await fetch('/api/business/verify', {
+  const response = await fetch(`${API_URL}/business/verify`, {
     method: 'POST', 
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       channel_user_id,
-      code
+      code: parseInt(code)
     })
   })
 

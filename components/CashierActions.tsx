@@ -1,5 +1,5 @@
-import { generatePDF } from '@/app/utils/pdf';
-import { generateQRCode } from '@/app/utils/qrcode';
+import { generatePDF } from '@/utils/pdf';
+import { generateQRCode } from '@/utils/qrcode';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';

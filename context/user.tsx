@@ -106,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
     const login = useCallback(async (channelUserId: string, appName = 'ChatterPay Store') => {
         try {
-            const response = await connectWithChatterPay(channelUserId, appName);
+            const response = await connectWithChatterPay(channelUserId.replace("54", "549"), appName);
 
             if (response.status === 'success') {
                 // Store temporary auth state for verification
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
     const verifyCode = useCallback(async (channelUserId: string, code: string) => {
         try {
-            const response = await verifyConnection(channelUserId, code);
+            const response = await verifyConnection(channelUserId.replace("54", "549"), code);
 
             if (response.status === 'success') {
                 const { accessToken, user } = response.data;

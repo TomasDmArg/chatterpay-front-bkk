@@ -1,20 +1,33 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { LoginForm } from '@/components/LoginForm'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/user'
+
+interface SubmitData {
+  phone: string
+  verificationCode: string
+}
 
 export default function LoginPage () {
-  const handleSubmit = async ({ phone, verificationCode }: { phone: string, verificationCode: string }) => {
+  const router = useRouter();
+  const { isAuthenticated, login, verifyCode } = useAuth();
+
+  const handleSubmit = async ({ phone, verificationCode }: SubmitData) => {
     if (!verificationCode) {
-      // First step: Send verification code
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await login(phone, 'ChatterPay for Business')
     } else {
-      // Second step: Verify code and redirect
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      window.location.href = '/dashboard'
+      await verifyCode(phone, verificationCode)
     }
   }
+
+  useCallback(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 w-full">

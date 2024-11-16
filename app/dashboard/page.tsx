@@ -10,8 +10,9 @@ import { TransactionsTable } from '@/components/TransactionsTable';
 import { Cashier, Transaction } from '@/types/main';
 import { CashiersTable } from '@/components/CashierTable';
 import Avvvatars from 'avvvatars-react'
+import { withAuth } from '@/context/user';
 
-export default function DashboardPage() {
+function DashboardPage() {
   const [cashiers, setCashiers] = useState<Cashier[]>([
     { id: 1, name: 'John Doe', status: 'Active', transactions: 145 },
     { id: 2, name: 'Jane Smith', status: 'Active', transactions: 89 },
@@ -125,3 +126,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default withAuth(DashboardPage);
