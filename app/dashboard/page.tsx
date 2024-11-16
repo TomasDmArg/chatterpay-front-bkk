@@ -132,7 +132,9 @@ function DashboardPage() {
       >
 
         <h1 className="text-4xl font-bold tracking-tight flex flex-row items-center gap-3">
-            <Avvvatars value="myStore" size={50} style='shape' />
+            <div className='hidden md:flex'>
+              <Avvvatars value="myStore" size={50} style='shape' />
+            </div>
             {business?.name}
         </h1>
         <div className="flex gap-2">

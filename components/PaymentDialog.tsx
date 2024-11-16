@@ -66,7 +66,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payments/create', {
+      const response = await fetch('/api/payments_demo/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
