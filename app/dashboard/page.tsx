@@ -24,6 +24,7 @@ import {
 } from '@/types/api';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import PaymentDialog from '@/components/PaymentDialog';
 
 function DashboardPage() {
   const { user, logout } = useAuth();
@@ -71,6 +72,14 @@ function DashboardPage() {
 
   const handleEditBusiness = ()=> {
     router.push('/edit-business');
+  }
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: 'Success',
+      description: 'Payment successful',
+      variant: 'default'
+    })
   }
 
   const fetchData = useCallback(async () => {
@@ -127,10 +136,6 @@ function DashboardPage() {
             {business?.name}
         </h1>
         <div className="flex gap-2">
-          <Button onClick={handleEditBusiness}>
-            <Building2 className="mr-2 h-4 w-4" />
-            Edit Business
-          </Button>
           <Button variant="outline" onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout
@@ -138,6 +143,18 @@ function DashboardPage() {
         </div>
         
       </motion.div>
+      
+      <div className="flex justify-start items-center gap-4">
+        <PaymentDialog 
+          cashiers={cashiers}
+          businessId={business?._id!}
+          onSuccess={handlePaymentSuccess}
+        />
+        <Button variant="secondary" onClick={handleEditBusiness}>
+          <Building2 className="mr-2 h-4 w-4" />
+          Edit Business
+        </Button>
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}
