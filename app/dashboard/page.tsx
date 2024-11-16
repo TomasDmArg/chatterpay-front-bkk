@@ -1,66 +1,115 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users2, Receipt, Building2, LogOut } from 'lucide-react';
 import { CashierDialog } from '@/components/CashierDialog';
 import { TransactionsTable } from '@/components/TransactionsTable';
-import { Cashier, Transaction } from '@/types/main';
 import { CashiersTable } from '@/components/CashierTable';
 import Avvvatars from 'avvvatars-react'
-import { withAuth } from '@/context/user';
+import { useAuth, withAuth } from '@/context/user';
+import businessService from '@/services/businessService';
+import paymentService from '@/services/paymentService';
+import cashierService from '@/services/cashierService';
+import { 
+  Business, 
+  Cashier, 
+  PaymentOrder,
+  BusinessListData,
+  PaymentOrderListData,
+  CashierListData,
+  SingleCashierData
+} from '@/types/api';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 function DashboardPage() {
-  const [cashiers, setCashiers] = useState<Cashier[]>([
-    { id: 1, name: 'John Doe', status: 'Active', transactions: 145 },
-    { id: 2, name: 'Jane Smith', status: 'Active', transactions: 89 },
-  ]);
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { 
-      id: 1, 
-      cashier: 'John Doe', 
-      amount: 50.00,
-      status: 'completed',
-      timestamp: '2024-03-15 14:30',
-      transactionId: '#TRX-001',
-      type: 'Sale'
-    },
-    { 
-      id: 2, 
-      cashier: 'Jane Smith', 
-      amount: 30.00,
-      status: 'pending',
-      timestamp: '2024-03-15 15:45',
-      transactionId: '#TRX-002',
-      type: 'Refund'
-    },
-  ]);
-
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [cashiers, setCashiers] = useState<Cashier[]>([]);
+  const [transactions, setTransactions] = useState<PaymentOrder[]>([]);
   const [newCashierName, setNewCashierName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const router = useRouter();
+
   const addCashier = () => {
     if (newCashierName.trim()) {
-      setCashiers([
-        ...cashiers, 
-        { 
-          id: cashiers.length + 1, 
-          name: newCashierName.trim(),
-          status: 'Active',
-          transactions: 0
-        }
-      ]);
-      setNewCashierName('');
+      cashierService.createCashier({
+        name: newCashierName,
+        business: business?._id || '',
+        active: true,
+        uniqueId: Math.random().toString(36).substr(2, 9)
+      }).then((cashier: SingleCashierData) => {
+        setCashiers(prev => [...prev, cashier.cashier]);
+        setNewCashierName('');
+        setIsDialogOpen(false);
+      }).catch(error => {
+        console.error('Error creating cashier:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to create cashier',
+          variant: 'destructive'
+        });
+      })
       setIsDialogOpen(false);
     }
   };
 
-  const deleteCashier = (id: number) => {
-    setCashiers(prev => prev.filter(cashier => cashier.id !== id));
+  const deleteCashier = async (id: string) => {
+    try {
+      await cashierService.deleteCashier(id);
+      setCashiers(prev => prev.filter(cashier => cashier._id !== id));
+    } catch (error) {
+      console.error('Error deleting cashier:', error);
+    }
   };
+
+  const handleEditBusiness = ()=> {
+    router.push('/edit-business');
+  }
+
+  const fetchData = useCallback(async () => {
+    try {
+      const promises = [
+        businessService.getAllBusinesses(),
+        paymentService.getAllPaymentOrders(),
+        cashierService.getAllCashiers()
+      ];
+
+      const [businessesData, paymentsData, cashiersData] = await Promise.all(promises) as [
+        BusinessListData,
+        PaymentOrderListData,
+        CashierListData
+      ];
+
+      const myBusiness = businessesData.businesses.find(bs => bs.owner === user?.id);
+      
+      if (myBusiness) {
+        const myPaymentOrders = paymentsData.orders.filter(
+          order => order.cashier.business === myBusiness._id
+        );
+        const myCashiers = cashiersData.cashiers.filter(
+          cashier => cashier.business === myBusiness._id
+        );
+
+        setCashiers(myCashiers);
+        setTransactions(myPaymentOrders);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }, [user]);
+
+  React.useEffect(() => {
+    if (user) {
+      fetchData();
+    }
+  }, [fetchData, user]);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -72,14 +121,14 @@ function DashboardPage() {
 
         <h1 className="text-4xl font-bold tracking-tight flex flex-row items-center gap-3">
             <Avvvatars value="myStore" size={50} style='shape' />
-            My Store
+            {business?.name}
         </h1>
         <div className="flex gap-2">
-          <Button onClick={() => window.location.href = '/edit-business'}>
+          <Button onClick={handleEditBusiness}>
             <Building2 className="mr-2 h-4 w-4" />
             Edit Business
           </Button>
-          <Button variant="outline" onClick={() => window.location.href = '/'}>
+          <Button variant="outline" onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
@@ -107,7 +156,7 @@ function DashboardPage() {
             />
           </CardHeader>
           <CardContent>
-            <CashiersTable cashiers={cashiers} onDelete={deleteCashier}/>
+            <CashiersTable cashiers={cashiers} onDelete={deleteCashier} payments={transactions} />
           </CardContent>
         </Card>
 

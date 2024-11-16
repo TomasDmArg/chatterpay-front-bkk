@@ -1,23 +1,23 @@
 import apiClient from '@/utils/apiClient';
-import { Business, BusinessResponse } from '@/types/api';
+import { CreateBusinessDTO, BusinessListData, SingleBusinessData } from '@/types/api';
 
 const businessService = {
-  createBusiness: async (data: Business): Promise<BusinessResponse> => {
+  createBusiness: async (data: CreateBusinessDTO): Promise<SingleBusinessData> => {
     const response = await apiClient.post('/business', data);
     return response.data;
   },
 
-  getAllBusinesses: async (): Promise<BusinessResponse[]> => {
+  getAllBusinesses: async (): Promise<BusinessListData> => {
     const response = await apiClient.get('/business');
     return response.data;
   },
 
-  getBusinessById: async (id: string): Promise<BusinessResponse> => {
+  getBusinessById: async (id: string): Promise<SingleBusinessData> => {
     const response = await apiClient.get(`/business/${id}`);
     return response.data;
   },
 
-  updateBusiness: async (id: string, data: Partial<Business>): Promise<BusinessResponse> => {
+  updateBusiness: async (id: string, data: Partial<CreateBusinessDTO>): Promise<SingleBusinessData> => {
     const response = await apiClient.put(`/business/${id}`, data);
     return response.data;
   },

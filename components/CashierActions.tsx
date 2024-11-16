@@ -3,12 +3,12 @@ import { generateQRCode } from '@/utils/qrcode';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
-import { Cashier } from '@/types/main';
+import { Cashier } from '@/types/api';
 import { Download, Trash2, ChevronDown, QrCode } from 'lucide-react';
 
 interface CashierActionsProps {
   cashier: Cashier;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
@@ -16,7 +16,7 @@ export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
     try {
       // Generate unique data for the QR code (e.g., cashier ID and timestamp)
       const qrData = JSON.stringify({
-        cashierId: cashier.id,
+        cashierId: cashier._id,
         name: cashier.name,
         timestamp: new Date().toISOString()
       });
@@ -54,9 +54,9 @@ export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
 
   const handleDelete = () => {
     try {
-      onDelete(cashier.id);
+      onDelete(cashier._id);
       toast({
-        title: "Success",
+        title: "Success", 
         description: `Cashier ${cashier.name} has been deleted`,
         variant: "default",
       });

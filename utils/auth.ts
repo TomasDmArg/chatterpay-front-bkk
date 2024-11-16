@@ -49,7 +49,7 @@ export const verifyConnection = async (channel_user_id: string, code: string): P
     body: JSON.stringify({
       channel_user_id,
       code: parseInt(code)
-    })
+    })  
   })
 
   return response.json()

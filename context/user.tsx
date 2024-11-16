@@ -95,6 +95,8 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
                     isLoading: false,
                     user,
                 });
+
+                router.push('/dashboard');
             } catch (error) {
                 console.error('Auth check failed:', error);
                 setState((prev) => ({ ...prev, isLoading: false }));

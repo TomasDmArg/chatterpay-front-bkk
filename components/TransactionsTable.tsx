@@ -1,9 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Transaction } from "@/types/main";
+import { PaymentOrder } from "@/types/api";
 
 interface TransactionsTableProps {
-  transactions: Transaction[];
+  transactions: PaymentOrder[];
 }
 
 export function TransactionsTable({ transactions }: TransactionsTableProps) {
@@ -21,14 +21,9 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
       </TableHeader>
       <TableBody>
         {transactions.map((transaction) => (
-          <TableRow key={transaction.id}>
-            <TableCell className="font-medium">{transaction.transactionId}</TableCell>
-            <TableCell>{transaction.cashier}</TableCell>
-            <TableCell>
-              <Badge variant={transaction.type === 'Sale' ? 'default' : 'secondary'}>
-                {transaction.type}
-              </Badge>
-            </TableCell>
+          <TableRow key={transaction._id}>
+            <TableCell className="font-medium">{transaction._id}</TableCell>
+            <TableCell>{transaction.cashier.name}</TableCell>
             <TableCell>${transaction.amount.toFixed(2)}</TableCell>
             <TableCell>
               <Badge
@@ -42,7 +37,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                 {transaction.status}
               </Badge>
             </TableCell>
-            <TableCell>{transaction.timestamp}</TableCell>
+            <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
           </TableRow>
         ))}
       </TableBody>
