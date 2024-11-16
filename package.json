@@ -49,6 +49,7 @@
     "jspdf": "^2.5.2",
     "lucide-react": "^0.435.0",
     "next": "14.2.6",
+    "nextjs-cors": "^2.2.0",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.1.0",
     "react": "^18",
