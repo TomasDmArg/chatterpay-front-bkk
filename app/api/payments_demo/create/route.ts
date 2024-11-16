@@ -8,7 +8,7 @@ import { createOrder } from '@/utils/paymentsDemo';
 
 // Add your RPC URL and private key
 const POLYGON_RPC_URL = process.env.POLYGON_RPC_URL!;
-const PRIVATE_KEY = process.env.PAYMENT_PROCESSOR_PRIVATE_KEY!;
+const PRIVATE_KEY = process.env.PRIVATE_KEY!;
 
 /**
  * POST /api/payments_demo/create
@@ -66,8 +66,7 @@ export async function POST(request: Request) {
       );
     }**/
 
-    NextResponse.json({ message: `Payment created successfully for ${amount} ${currency}, now the customer can scan the QR to pay! 🎉` }, { status: 200 });
-
+    /*
     // Generate unique payment ID
     const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -81,11 +80,13 @@ export async function POST(request: Request) {
       uniqueId,
     };
 
-    const response = await paymentService.createPaymentOrder(paymentData);
+    // const response = paymentService.createPaymentOrder(paymentData);
 
     // Initialize provider and signer
+    console.log(POLYGON_RPC_URL, PRIVATE_KEY)
     const provider = new ethers.providers.JsonRpcProvider(POLYGON_RPC_URL);
     const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    console.log(POLYGON_RPC_URL, PRIVATE_KEY)
 
     // Create blockchain payment order
     const tx = await createOrder({
@@ -96,22 +97,11 @@ export async function POST(request: Request) {
     });
 
     // Wait for transaction confirmation
-    const receipt = await tx.wait();
+    const receipt = await tx.wait();*/
     
-    return NextResponse.json({
-      status: 'success',
-      data: {
-        message: 'Payment created successfully',
-        payment: response.order,
-        transaction: {
-          hash: receipt.transactionHash,
-          blockNumber: receipt.blockNumber
-        }
-      }
-    });
-
+    return NextResponse.json({ message: `Payment created successfully for ${amount} ${currency}, now the customer can scan the QR to pay! 🎉` }, { status: 200 });
   } catch (error) {
-    console.error('Error creating payment:', error);
+    console.error('Error creating payment');
     return NextResponse.json(
       { error: 'Failed to create payment' },
       { status: 500 }

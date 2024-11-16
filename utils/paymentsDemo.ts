@@ -25,7 +25,10 @@ interface PaymentOrder {
  * Creates an order ID from a unique identifier
  */
 export function createOrderId(uniqueId: string): string {
-    return ethers.utils.id(uniqueId);
+    console.log(`Creating order ID for unique ID: ${uniqueId}`);
+    const orderId = ethers.utils.id(uniqueId);
+    console.log(`Generated order ID: ${orderId}`);
+    return orderId;
 }
 
 interface CreateOrderParams {
@@ -49,11 +52,19 @@ export async function createOrder({
     token_address,
     amount
 }: CreateOrderParams): Promise<ethers.ContractTransaction> {
+    console.log(`Creating payment order with params:`, {
+        signer,
+        order_id,
+        token_address,
+        amount
+    });
+
     // Convert amount to string if it isn't already
     const amountString = String(amount);
 
     // Validate the amount string
     if (!amountString.match(/^\d*\.?\d*$/)) {
+        console.error(`Invalid amount format: ${amountString}`);
         throw new Error('Invalid amount format - must be a valid number');
     }
 
@@ -61,19 +72,31 @@ export async function createOrder({
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI,
-        signer
+        signer,
     );
 
     // Convert amount to wei
     const amountWei = ethers.utils.parseUnits(amountString, 18);
     const orderId = createOrderId(order_id);
 
+    console.log(`Converted amount to wei: ${amountWei}`);
+    console.log(`Calling createPaymentOrder with params:`, {
+        orderId,
+        token_address,
+        amountWei
+    });
+
     // Execute the transaction
     const tx = await contract.createPaymentOrder(
         orderId,
         token_address,
-        amountWei
+        amountWei,
+        {
+            gasLimit: 300000 // Adjust based on your needs
+        }
     );
+
+    console.log(`Transaction sent:`, tx);
 
     return tx;
 }
@@ -85,6 +108,11 @@ export async function payOrder({
     signer,
     order_id
 }: PayOrderParams): Promise<ethers.ContractTransaction> {
+    console.log(`Paying order with params:`, {
+        signer, 
+        order_id
+    });
+
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI,
@@ -92,7 +120,12 @@ export async function payOrder({
     );
 
     const orderId = createOrderId(order_id);
+
+    console.log(`Calling payOrder with orderId: ${orderId}`);
+
     const tx = await contract.payOrder(orderId);
+
+    console.log(`Transaction sent:`, tx);
 
     return tx;
 }
@@ -104,6 +137,8 @@ export async function calculateFee(
     provider: ethers.providers.Provider,
     amount: string | number
 ): Promise<string> {
+    console.log(`Calculating fee for amount: ${amount}`);
+
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI,
@@ -115,10 +150,17 @@ export async function calculateFee(
     
     try {
         const amountWei = ethers.utils.parseUnits(amountString, 18);
+        console.log(`Converted amount to wei: ${amountWei}`);
+
+        console.log(`Calling calculateFee with amountWei: ${amountWei}`);
         const feeWei = await contract.calculateFee(amountWei);
         
-        return ethers.utils.formatUnits(feeWei, 18);
+        const feeEther = ethers.utils.formatUnits(feeWei, 18);
+        console.log(`Calculated fee: ${feeEther} ether`);
+
+        return feeEther;
     } catch (error) {
+        console.error(`Error calculating fee:`, error);
         throw new Error(`Error calculating fee: ${error}`);
     }
 }
@@ -130,6 +172,8 @@ export async function getOrder(
     provider: ethers.providers.Provider,
     order_id: string
 ): Promise<PaymentOrder> {
+    console.log(`Getting order details for order ID: ${order_id}`);
+
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI,
@@ -137,7 +181,16 @@ export async function getOrder(
     );
 
     const orderId = createOrderId(order_id);
+    console.log(`Calling getOrder with orderId: ${orderId}`);
     const [token, amount, paid, payer, fee] = await contract.getOrder(orderId);
+
+    console.log(`Received order details:`, {
+        token,
+        amount: ethers.utils.formatUnits(amount, 18),
+        paid,
+        payer,
+        fee: ethers.utils.formatUnits(fee, 18)
+    });
 
     return {
         token,
