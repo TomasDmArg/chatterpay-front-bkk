@@ -10,7 +10,7 @@ const apiClient = axios.create({
 
 // Interceptor para agregar el token desde localStorage
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
+  const token = typeof window !== "undefined" ? localStorage.getItem('auth_token') : process.env.FRONTEND_TOKEN;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -66,14 +66,15 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payments', {
+      const response = await fetch('/api/payments/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
         body: JSON.stringify({
           amount: parseFloat(amount),
-          cashier: selectedCashier,
+          cashierId: selectedCashier,
           network: 'arbitrum-sepolia',
           currency: 'USDC',
           business: businessId,

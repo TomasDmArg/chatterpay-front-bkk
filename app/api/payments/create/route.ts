@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import paymentService from '@/services/paymentService';
 import cashierService from '@/services/cashierService';
 import { verifyJWTToken } from '@/utils/jwt';
+import { createOrder } from '@/utils/payments';
 
 /**
  * POST /api/payments/create
@@ -15,15 +16,6 @@ export async function POST(request: Request) {
     if (!token) {
       return NextResponse.json(
         { error: 'Missing authorization token' },
-        { status: 401 }
-      );
-    }
-
-    try {
-      verifyJWTToken(token);
-    } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
         { status: 401 }
       );
     }
@@ -84,6 +76,13 @@ export async function POST(request: Request) {
 
     const response = await paymentService.createPaymentOrder(paymentData);
 
+    createOrder({
+        amount,
+        channel_user_id: "5492233049354",
+        order_id: uniqueId,
+        token_address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    })
+    
     return NextResponse.json({
       status: 'success',
       data: {
@@ -100,3 +99,22 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * Usage:
+ * Create a new payment order
+ * 
+ * POST /api/payments/create
+ * 
+ * Headers:
+ * Authorization
+ * 
+ * Body:
+ * {
+ *  "amount": 100,
+ *  "cashierId": "60f7b3b3b3b3b3b3b3b3b3b3",
+ *  "currency": "USDC",
+ *  "network": "polygon"
+ * }
+ * 
+ */

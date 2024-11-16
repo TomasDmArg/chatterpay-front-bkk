@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import axios from 'axios';
 
-const PAYMENT_PROCESSOR_ADDRESS = '0x1234567890123456789012345678901234567890'; // Replace with actual address
+const PAYMENT_PROCESSOR_ADDRESS = '0x3B4Df2bf0A5f7036e19f6dE66dF79e2a8b7Bd1eD';
 const PAYMENT_PROCESSOR_ABI = [
     "function createPaymentOrder(bytes32 orderId, address token, uint256 amount) external",
     "function payOrder(bytes32 orderId) external",
@@ -30,20 +30,32 @@ export function createOrderId(uniqueId: string): string {
 export function createPaymentOrderCalldata(
     orderId: string,
     tokenAddress: string,
-    amount: string
+    amount: string | number
 ): string {
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI
     );
 
-    // Convert amount to wei
-    const amountWei = ethers.utils.parseUnits(amount, 18);
+    // Convert amount to string if it isn't already
+    const amountString = String(amount);
+    
+    // Validate the amount string
+    if (!amountString.match(/^\d*\.?\d*$/)) {
+        throw new Error('Invalid amount format - must be a valid number');
+    }
 
-    return contract.interface.encodeFunctionData(
-        'createPaymentOrder',
-        [orderId, tokenAddress, amountWei]
-    );
+    // Convert amount to wei
+    try {
+        const amountWei = ethers.utils.parseUnits(amountString, 18);
+        
+        return contract.interface.encodeFunctionData(
+            'createPaymentOrder',
+            [orderId, tokenAddress, amountWei]
+        );
+    } catch (error) {
+        throw new Error(`Error parsing amount: ${error}`);
+    }
 }
 
 /**
@@ -65,7 +77,7 @@ interface CreateOrderParams {
     channel_user_id: string;   // Admin's phone number
     order_id: string;          // Unique order identifier
     token_address: string;     // ERC20 token address
-    amount: string;            // Amount in token units
+    amount: string | number;   // Amount in token units (can be string or number)
     chain_id?: string;         // Optional chain ID
 }
 
@@ -82,17 +94,25 @@ export async function createOrder({
     channel_user_id,
     order_id,
     token_address,
-    amount,
-    chain_id
+    amount
 }: CreateOrderParams): Promise<{ transactionHash: string }> {
-    const orderId = createOrderId(order_id);
-    const calldata = createPaymentOrderCalldata(orderId, token_address, amount);
+    // Convert amount to string if it isn't already
+    const amountString = String(amount);
 
-    const response = await axios.post('/api/contract-call', {
+    const orderId = createOrderId(order_id);
+    const calldata = createPaymentOrderCalldata(orderId, token_address, amountString);
+
+
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/execute_contract_call/`, {
         channel_user_id,
         target_contract: PAYMENT_PROCESSOR_ADDRESS,
         calldata,
-        chain_id
+        value: "0",
+        chain_id: 137
+    }, {
+        headers: {
+            'Authorization': `Bearer ${process.env.FRONTEND_TOKEN}`
+        }
     });
 
     if (response.data.error) {
@@ -104,7 +124,6 @@ export async function createOrder({
 
 /**
  * Pays an existing order through the PaymentProcessor
- * Note: Requires prior ERC20 approval for the payment amount
  */
 export async function payOrder({
     channel_user_id,
@@ -130,37 +149,25 @@ export async function payOrder({
 
 /**
  * Helper function to calculate the fee for a given amount
- * This is a view function that doesn't require a transaction
  */
-export function calculateFee(amount: string): string {
+export function calculateFee(amount: string | number): string {
     const contract = new ethers.Contract(
         PAYMENT_PROCESSOR_ADDRESS,
         PAYMENT_PROCESSOR_ABI
     );
     
-    const amountWei = ethers.utils.parseUnits(amount, 18);
-    const feeWei = contract.interface.encodeFunctionData(
-        'calculateFee',
-        [amountWei]
-    );
+    // Convert amount to string if it isn't already
+    const amountString = String(amount);
     
-    return ethers.utils.formatUnits(feeWei, 18);
+    try {
+        const amountWei = ethers.utils.parseUnits(amountString, 18);
+        const feeWei = contract.interface.encodeFunctionData(
+            'calculateFee',
+            [amountWei]
+        );
+        
+        return ethers.utils.formatUnits(feeWei, 18);
+    } catch (error) {
+        throw new Error(`Error calculating fee: ${error}`);
+    }
 }
-
-/**
- * Example usage:
- * 
- * // Create a new order
- * const orderResult = await createOrder({
- *     channel_user_id: "1234567890",  // Admin's phone
- *     order_id: "order123",           // Unique order ID
- *     token_address: "0xtoken...",    // ERC20 token address
- *     amount: "100",                  // 100 tokens
- * });
- * 
- * // Pay an existing order
- * const payResult = await payOrder({
- *     channel_user_id: "9876543210",  // User's phone
- *     order_id: "order123",           // Same order ID
- * });
- */
