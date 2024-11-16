@@ -82,8 +82,6 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
       if (!response.ok) throw new Error('Failed to create payment');
 
-      const data = await response.json();
-      
       toast({
         title: 'Success',
         description: 'Payment created successfully',
@@ -96,9 +94,6 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
       
       // Call success callback if provided
       if (onSuccess) onSuccess();
-
-      // Redirect to payment page
-      router.push(`/payment/${data.id}`);
     } catch (error) {
       toast({
         title: 'Error',

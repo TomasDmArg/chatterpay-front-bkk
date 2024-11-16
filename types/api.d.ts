@@ -62,6 +62,9 @@ export interface CreatePaymentOrderDTO {
   currency: string
   network: string
   cashier: string
+  status: "pending" | "completed" | "failed" | "cancelled"
+  createdAt?: string
+  transactionHash?: string
 }
 
 // Interfaces para response.data

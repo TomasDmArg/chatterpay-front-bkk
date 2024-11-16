@@ -1,121 +1,166 @@
-/**
- * Utility functions for handling payments
- */
-
 import { ethers } from 'ethers';
-import type { PaymentOrder } from '@/types/api';
+import axios from 'axios';
 
-/**
- * Payment status enum
- */
-export enum PaymentStatus {
-  PENDING = 'pending',
-  COMPLETED = 'completed',
-  FAILED = 'failed'
+const PAYMENT_PROCESSOR_ADDRESS = '0x1234567890123456789012345678901234567890'; // Replace with actual address
+const PAYMENT_PROCESSOR_ABI = [
+    "function createPaymentOrder(bytes32 orderId, address token, uint256 amount) external",
+    "function payOrder(bytes32 orderId) external",
+    "function getOrder(bytes32 orderId) external view returns (address token, uint256 amount, bool paid, address payer, uint256 fee)",
+    "function calculateFee(uint256 amount) public pure returns (uint256)"
+];
+
+interface PaymentOrder {
+    token: string;
+    amount: string;
+    paid: boolean;
+    payer: string;
+    fee: string;
 }
 
 /**
- * Payment creation parameters interface
+ * Creates an order ID from a unique identifier
  */
-interface CreatePaymentParams {
-  amount: number;
-  cashierId: string;
-  businessId: string;
-  network?: string;
-  currency?: string;
+export function createOrderId(uniqueId: string): string {
+    return ethers.utils.id(uniqueId);
 }
 
 /**
- * Creates a unique payment identifier
+ * Formats the calldata for creating a payment order
  */
-export function createPaymentId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+export function createPaymentOrderCalldata(
+    orderId: string,
+    tokenAddress: string,
+    amount: string
+): string {
+    const contract = new ethers.Contract(
+        PAYMENT_PROCESSOR_ADDRESS,
+        PAYMENT_PROCESSOR_ABI
+    );
+
+    // Convert amount to wei
+    const amountWei = ethers.utils.parseUnits(amount, 18);
+
+    return contract.interface.encodeFunctionData(
+        'createPaymentOrder',
+        [orderId, tokenAddress, amountWei]
+    );
 }
 
 /**
- * Formats the amount with proper decimals for blockchain
+ * Formats the calldata for paying an order
  */
-export function formatAmount(amount: number): string {
-  return ethers.utils.parseUnits(amount.toString(), 6).toString(); // 6 decimals for USDC
+export function createPayOrderCalldata(orderId: string): string {
+    const contract = new ethers.Contract(
+        PAYMENT_PROCESSOR_ADDRESS,
+        PAYMENT_PROCESSOR_ABI
+    );
+
+    return contract.interface.encodeFunctionData(
+        'payOrder',
+        [orderId]
+    );
+}
+
+interface CreateOrderParams {
+    channel_user_id: string;   // Admin's phone number
+    order_id: string;          // Unique order identifier
+    token_address: string;     // ERC20 token address
+    amount: string;            // Amount in token units
+    chain_id?: string;         // Optional chain ID
+}
+
+interface PayOrderParams {
+    channel_user_id: string;   // User's phone number
+    order_id: string;          // Order ID to pay
+    chain_id?: string;         // Optional chain ID
 }
 
 /**
- * Creates a new payment order
+ * Creates a new payment order through the PaymentProcessor
  */
-export async function createPayment({
-  amount,
-  cashierId,
-  businessId,
-  network = 'arbitrum-sepolia',
-  currency = 'USDC'
-}: CreatePaymentParams): Promise<PaymentOrder> {
-  // Format the payment data
-  const paymentData = {
+export async function createOrder({
+    channel_user_id,
+    order_id,
+    token_address,
     amount,
-    network,
-    currency,
-    cashier: cashierId,
-    business: businessId,
-    status: PaymentStatus.PENDING,
-    uniqueId: createPaymentId(),
-  };
+    chain_id
+}: CreateOrderParams): Promise<{ transactionHash: string }> {
+    const orderId = createOrderId(order_id);
+    const calldata = createPaymentOrderCalldata(orderId, token_address, amount);
 
-  // Make API call to create payment
-  const response = await fetch('/api/payments', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(paymentData),
-  });
+    const response = await axios.post('/api/contract-call', {
+        channel_user_id,
+        target_contract: PAYMENT_PROCESSOR_ADDRESS,
+        calldata,
+        chain_id
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to create payment');
-  }
+    if (response.data.error) {
+        throw new Error(response.data.error);
+    }
 
-  return response.json();
+    return response.data.data;
 }
 
 /**
- * Gets payment details by ID
+ * Pays an existing order through the PaymentProcessor
+ * Note: Requires prior ERC20 approval for the payment amount
  */
-export async function getPaymentById(id: string): Promise<PaymentOrder> {
-  const response = await fetch(`/api/payments/${id}`);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch payment');
-  }
+export async function payOrder({
+    channel_user_id,
+    order_id,
+    chain_id
+}: PayOrderParams): Promise<{ transactionHash: string }> {
+    const orderId = createOrderId(order_id);
+    const calldata = createPayOrderCalldata(orderId);
 
-  return response.json();
+    const response = await axios.post('/api/contract-call', {
+        channel_user_id,
+        target_contract: PAYMENT_PROCESSOR_ADDRESS,
+        calldata,
+        chain_id
+    });
+
+    if (response.data.error) {
+        throw new Error(response.data.error);
+    }
+
+    return response.data.data;
 }
 
 /**
- * Updates payment status
+ * Helper function to calculate the fee for a given amount
+ * This is a view function that doesn't require a transaction
  */
-export async function updatePaymentStatus(
-  id: string, 
-  status: PaymentStatus,
-  transactionHash?: string
-): Promise<PaymentOrder> {
-  const response = await fetch(`/api/payments/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ status, transactionHash }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update payment status');
-  }
-
-  return response.json();
+export function calculateFee(amount: string): string {
+    const contract = new ethers.Contract(
+        PAYMENT_PROCESSOR_ADDRESS,
+        PAYMENT_PROCESSOR_ABI
+    );
+    
+    const amountWei = ethers.utils.parseUnits(amount, 18);
+    const feeWei = contract.interface.encodeFunctionData(
+        'calculateFee',
+        [amountWei]
+    );
+    
+    return ethers.utils.formatUnits(feeWei, 18);
 }
 
 /**
- * Gets the payment URL for a given payment ID
+ * Example usage:
+ * 
+ * // Create a new order
+ * const orderResult = await createOrder({
+ *     channel_user_id: "1234567890",  // Admin's phone
+ *     order_id: "order123",           // Unique order ID
+ *     token_address: "0xtoken...",    // ERC20 token address
+ *     amount: "100",                  // 100 tokens
+ * });
+ * 
+ * // Pay an existing order
+ * const payResult = await payOrder({
+ *     channel_user_id: "9876543210",  // User's phone
+ *     order_id: "order123",           // Same order ID
+ * });
  */
-export function getPaymentUrl(paymentId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  return `${baseUrl}/payment/${paymentId}`;
-}
