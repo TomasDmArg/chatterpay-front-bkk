@@ -87,6 +87,8 @@ function DashboardPage() {
         CashierListData
       ];
 
+      console.log(businessesData);
+      
       const myBusiness = businessesData.businesses.find(bs => bs.owner === user?.id);
       
       if (myBusiness) {
@@ -96,7 +98,8 @@ function DashboardPage() {
         const myCashiers = cashiersData.cashiers.filter(
           cashier => cashier.business === myBusiness._id
         );
-
+        
+        setBusiness(myBusiness);
         setCashiers(myCashiers);
         setTransactions(myPaymentOrders);
       }

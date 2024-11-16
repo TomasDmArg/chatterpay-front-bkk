@@ -15,7 +15,6 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           <TableHead>Cashier</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Amount</TableHead>
-          <TableHead>Status</TableHead>
           <TableHead>Date</TableHead>
         </TableRow>
       </TableHeader>

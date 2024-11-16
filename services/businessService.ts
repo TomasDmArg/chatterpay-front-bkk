@@ -9,17 +9,17 @@ const businessService = {
 
   getAllBusinesses: async (): Promise<BusinessListData> => {
     const response = await apiClient.get('/business');
-    return response.data;
+    return response.data.data;
   },
 
   getBusinessById: async (id: string): Promise<SingleBusinessData> => {
     const response = await apiClient.get(`/business/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   updateBusiness: async (id: string, data: Partial<CreateBusinessDTO>): Promise<SingleBusinessData> => {
     const response = await apiClient.put(`/business/${id}`, data);
-    return response.data;
+    return response.data.data;
   },
 
   deleteBusiness: async (id: string): Promise<void> => {

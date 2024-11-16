@@ -1,10 +1,9 @@
 import { generatePDF } from '@/utils/pdf';
 import { generateQRCode } from '@/utils/qrcode';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
 import { Cashier } from '@/types/api';
-import { Download, Trash2, ChevronDown, QrCode } from 'lucide-react';
+import { Trash2, QrCode } from 'lucide-react';
 
 interface CashierActionsProps {
   cashier: Cashier;
@@ -13,16 +12,13 @@ interface CashierActionsProps {
 
 export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
   const handleQRCodeDownload = async () => {
+    const browserURL = typeof window !== "undefined" ? window.location.href : "http://localhost:3000"; 
     try {
       // Generate unique data for the QR code (e.g., cashier ID and timestamp)
-      const qrData = JSON.stringify({
-        cashierId: cashier._id,
-        name: cashier.name,
-        timestamp: new Date().toISOString()
-      });
+      const qrURL = `${process.env.NEXT_PUBLIC_APP_URL ?? browserURL}/cashier/${cashier._id}`;
 
       // Generate QR code
-      const qrCodeDataUrl = await generateQRCode(qrData);
+      const qrCodeDataUrl = await generateQRCode(qrURL);
 
       // Generate PDF with QR code
       const pdfBlob = await generatePDF(qrCodeDataUrl, cashier.name);

@@ -4,22 +4,22 @@ import { CreatePaymentOrderDTO, PaymentOrderListData, SinglePaymentOrderData } f
 const paymentService = {
   createPaymentOrder: async (data: CreatePaymentOrderDTO): Promise<SinglePaymentOrderData> => {
     const response = await apiClient.post('/business/payment', data);
-    return response.data;
+    return response.data.data;
   },
 
   getAllPaymentOrders: async (): Promise<PaymentOrderListData> => {
     const response = await apiClient.get('/business/payment');
-    return response.data;
+    return response.data.data;
   },
 
   getPaymentOrderById: async (id: string): Promise<SinglePaymentOrderData> => {
     const response = await apiClient.get(`/business/payment/${id}`);
-    return response.data;
+    return response.data.data;
   },
 
   updatePaymentOrder: async (id: string, data: Partial<CreatePaymentOrderDTO>): Promise<SinglePaymentOrderData> => {
     const response = await apiClient.put(`/business/payment/${id}`, data);
-    return response.data;
+    return response.data.data;
   },
 
   deletePaymentOrder: async (id: string): Promise<void> => {
