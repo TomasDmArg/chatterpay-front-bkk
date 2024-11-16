@@ -1,16 +1,17 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Cashier, PaymentOrder, PaymentOrderListData } from "@/types/api";
+import { Business, Cashier, PaymentOrder, PaymentOrderListData } from "@/types/api";
 import { CashierActions } from "./CashierActions";
 import { useMemo } from "react";
 
 interface CashiersTableProps {
   cashiers: Cashier[];
   payments: PaymentOrder[];
+  business: Business | null;
   onDelete: (id: string) => void;
 }
 
-export function CashiersTable({ cashiers, payments, onDelete }: CashiersTableProps) {
+export function CashiersTable({ cashiers, payments, business, onDelete }: CashiersTableProps) {
   //Find all payments amount for each cashier (paymentOrder.cashier)
   const cashiersWithTransactions = useMemo(() => {
     return cashiers.map((cashier) => {
@@ -45,7 +46,7 @@ export function CashiersTable({ cashiers, payments, onDelete }: CashiersTablePro
               {cashiersWithTransactions.find((c) => c._id === cashier._id)?.transactions || 0}
             </TableCell>
             <TableCell className="text-right py-2">
-              <CashierActions onDelete={onDelete} cashier={cashier} />
+              <CashierActions onDelete={onDelete} cashier={cashier} businessName={business?.name!} />
             </TableCell>
           </TableRow>
         ))}

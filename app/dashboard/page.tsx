@@ -98,7 +98,7 @@ function DashboardPage() {
         const myCashiers = cashiersData.cashiers.filter(
           cashier => cashier.business === myBusiness._id
         );
-        
+
         setBusiness(myBusiness);
         setCashiers(myCashiers);
         setTransactions(myPaymentOrders);
@@ -159,7 +159,7 @@ function DashboardPage() {
             />
           </CardHeader>
           <CardContent>
-            <CashiersTable cashiers={cashiers} onDelete={deleteCashier} payments={transactions} />
+            <CashiersTable cashiers={cashiers} onDelete={deleteCashier} payments={transactions} business={business} />
           </CardContent>
         </Card>
 

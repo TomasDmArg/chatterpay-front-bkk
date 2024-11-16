@@ -7,21 +7,23 @@ import { Trash2, QrCode } from 'lucide-react';
 
 interface CashierActionsProps {
   cashier: Cashier;
+  businessName: string;
   onDelete: (id: string) => void;
 }
 
-export function CashierActions({ cashier, onDelete }: CashierActionsProps) {
+export function CashierActions({ cashier, businessName, onDelete }: CashierActionsProps) {
   const handleQRCodeDownload = async () => {
     const browserURL = typeof window !== "undefined" ? window.location.href : "http://localhost:3000"; 
     try {
       // Generate unique data for the QR code (e.g., cashier ID and timestamp)
-      const qrURL = `${process.env.NEXT_PUBLIC_APP_URL ?? browserURL}/cashier/${cashier._id}`;
-
-      // Generate QR code
-      const qrCodeDataUrl = await generateQRCode(qrURL);
+      const qrValue = `${process.env.NEXT_PUBLIC_APP_URL ?? browserURL}/cashier/${cashier._id}`;
 
       // Generate PDF with QR code
-      const pdfBlob = await generatePDF(qrCodeDataUrl, cashier.name);
+      const pdfBlob = await generatePDF({
+        businessName,
+        cashierName: cashier.name,
+        qrValue,
+      });
 
       // Create download link
       const url = window.URL.createObjectURL(pdfBlob);
