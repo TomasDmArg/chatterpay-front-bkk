@@ -10,7 +10,7 @@ interface ConnectResponse {
   status: string
   data: {
     message: string
-    accessToken: string
+    access_token: string
     user: {
       id: string
       status: 'verified'

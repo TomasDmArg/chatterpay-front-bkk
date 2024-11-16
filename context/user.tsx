@@ -125,9 +125,9 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             const response = await verifyConnection(channelUserId.replace("54", "549"), code);
 
             if (response.status === 'success') {
-                const { accessToken, user } = response.data;
+                const { access_token, user } = response.data;
 
-                localStorage.setItem('auth_token', accessToken);
+                localStorage.setItem('auth_token', access_token);
                 localStorage.setItem('user', JSON.stringify(user));
 
                 const { id, status } = user;
