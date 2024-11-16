@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { Toaster } from '@/components/ui/toaster'
+import { AuthProvider } from '@/context/user'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       >
         <main className="flex min-h-screen flex-col">
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </main>
         <Toaster />
       </body>
