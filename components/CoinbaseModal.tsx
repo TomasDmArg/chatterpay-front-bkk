@@ -27,8 +27,10 @@ interface CoinbaseModalProps {
   onSuccess: () => void
   paymentAmount?: number
   currency?: string
+  destinationAddress?: string
+  tokenId?: string
+  mode?: 'create' | 'pay'
 }
-
 
 enum WalletStatus {
   INPUT = 'input',
@@ -45,11 +47,9 @@ export function CoinbaseModal({
   paymentAmount = 0,
   currency = 'USDC',
   destinationAddress,
-  tokenId
-}: CoinbaseModalProps & {
-  destinationAddress: string
-  tokenId: string
-}) {
+  tokenId,
+  mode = 'create'
+}: CoinbaseModalProps) {
   const { toast } = useToast()
   const [status, setStatus] = useState<WalletStatus>(WalletStatus.INPUT)
   const [email, setEmail] = useState('')
@@ -92,40 +92,40 @@ export function CoinbaseModal({
         })
         await circleService.requestTestTokens(wallets[0].address)
 
-        setStatus(WalletStatus.PAYING)
+        if (mode === 'pay' && destinationAddress && tokenId) {
+          setStatus(WalletStatus.PAYING)
 
-        // Execute payment
-        await circleService.executePayment({
-          userId: response.userId,
-          amount: paymentAmount,
-          destinationAddress,
-          tokenId,
-          walletId: wallets[0].id,
-          onProgress: setProgress
-        })
+          // Execute payment
+          await circleService.executePayment({
+            userId: response.userId,
+            amount: paymentAmount,
+            destinationAddress,
+            tokenId,
+            walletId: wallets[0].id,
+            onProgress: setProgress
+          })
+        }
 
         setStatus(WalletStatus.COMPLETE)
         toast({
           title: 'Success',
-          description: 'Payment completed successfully!',
+          description: mode === 'pay' ? 'Payment completed successfully!' : 'Wallet created successfully!',
         })
         onSuccess()
       } else {
         toast({ title: 'Error', description: 'No wallets found', variant: 'destructive' })
       }
 
-      
-
     } catch (error) {
-      console.error('Error during payment flow:', error)
+      console.error('Error during wallet flow:', error)
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Payment failed',
+        description: error instanceof Error ? error.message : 'Operation failed',
         variant: 'destructive',
       })
       setStatus(WalletStatus.INPUT)
     }
-  }, [email, paymentAmount, destinationAddress, tokenId, onSuccess, toast])
+  }, [email, paymentAmount, destinationAddress, tokenId, onSuccess, toast, mode])
 
   const getCurrentStep = useCallback(() => {
     switch (status) {
@@ -134,13 +134,25 @@ export function CoinbaseModal({
       case WalletStatus.SETTING_PIN:
         return 2
       case WalletStatus.PAYING:
-        return 3
+        return mode === 'pay' ? 3 : 4
       case WalletStatus.COMPLETE:
-        return 4
+        return mode === 'pay' ? 4 : 4
       default:
         return 0
     }
-  }, [status])
+  }, [status, mode])
+
+  const getSteps = () => {
+    const baseSteps = [
+      { label: 'Email' },
+      { label: 'Create Wallet' },
+      { label: 'Set PIN' },
+    ]
+    
+    return mode === 'pay' 
+      ? [...baseSteps, { label: 'Pay' }, { label: 'Complete' }]
+      : [...baseSteps, { label: 'Complete' }]
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -148,22 +160,18 @@ export function CoinbaseModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CoinbaseIcon className="h-5 w-5" />
-            Pay with Circle Wallet
+            {mode === 'pay' ? `Pay with Circle Wallet` : 'Create Circle Wallet'}
           </DialogTitle>
           <DialogDescription>
-            Create your wallet and pay {paymentAmount} {currency}
+            {mode === 'pay' 
+              ? `Create your wallet and pay ${paymentAmount} ${currency}`
+              : 'Create your Circle wallet to start using crypto'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <Steps
-            steps={[
-              { label: 'Email' },
-              { label: 'Create Wallet' },
-              { label: 'Set PIN' },
-              { label: 'Pay' },
-              { label: 'Complete' },
-            ]}
+            steps={getSteps()}
             currentStep={getCurrentStep()}
           />
 
@@ -185,7 +193,7 @@ export function CoinbaseModal({
                 onClick={handleCreateWallet}
                 disabled={!email}
               >
-                Continue to Payment
+                {mode === 'pay' ? 'Continue to Payment' : 'Create Wallet'}
               </Button>
             </div>
           )}

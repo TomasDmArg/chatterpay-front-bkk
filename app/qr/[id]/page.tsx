@@ -215,6 +215,7 @@ export default function QRCodePage({ params }: QRCodePageProps) {
                 currency={qrDetails?.payment?.currency}
                 destinationAddress={qrDetails?.payment?.destinationAddress!}
                 tokenId={qrDetails?.payment?.tokenId!}
+                mode='pay'
             />
         </div>
     )

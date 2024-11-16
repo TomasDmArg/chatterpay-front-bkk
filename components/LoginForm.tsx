@@ -1,4 +1,5 @@
-// src/components/composed/LoginForm/LoginForm.tsx
+'use client'
+
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
@@ -6,6 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { LoaderCircle, ChevronLeft, ArrowRight } from "lucide-react"
 import { PhoneInputField } from './PhoneInputField/PhoneInputField'
 import { VerificationStep } from './VerificationStep'
+import { CoinbaseModal } from '@/components/CoinbaseModal'
+import { CoinbaseIcon } from '@/components/icons/Coinbase'
 
 interface LoginFormProps {
   onSubmit: (data: { phone: string, verificationCode: string }) => Promise<void>
@@ -22,6 +25,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const [step, setStep] = useState(1)
   const [phone, setPhone] = useState('54')
   const [verificationCode, setVerificationCode] = useState('')
+  const [isCoinbaseModalOpen, setIsCoinbaseModalOpen] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -38,6 +42,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleCoinbaseSuccess = () => {
+    setIsCoinbaseModalOpen(false)
+    // Handle successful Coinbase login/wallet creation
   }
 
   return (
@@ -102,12 +111,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : step === 1 ? (
               <>
-                Continue
+                Continue with WhatsApp
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             ) : (
               "Sign In with ChatterPay"
             )}
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full hover:bg-secondary transition-all duration-200"
+            onClick={() => setIsCoinbaseModalOpen(true)}
+            type="button"
+          >
+            <CoinbaseIcon className="mr-2 h-5 w-5" />
+            Sign in with Coinbase
           </Button>
 
           {step === 1 ? (
@@ -131,6 +150,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           )}
         </CardFooter>
       </form>
+
+      <CoinbaseModal
+        isOpen={isCoinbaseModalOpen}
+        onClose={() => setIsCoinbaseModalOpen(false)}
+        onSuccess={handleCoinbaseSuccess}
+      />
     </Card>
   )
 }
