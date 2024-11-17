@@ -84,6 +84,9 @@ function DashboardPage() {
 
   const fetchData = useCallback(async () => {
     try {
+      // Agregar logs de debugging
+      console.log('Fetching data with user:', user);
+
       const promises = [
         businessService.getAllBusinesses(),
         paymentService.getAllPaymentOrders(),
@@ -96,10 +99,17 @@ function DashboardPage() {
         CashierListData
       ];
 
-      console.log(businessesData);
+      // Log las respuestas
+      console.log('Businesses data:', businessesData);
+      console.log('User ID:', user?.id);
       
-      const myBusiness = businessesData.businesses.find(bs => bs.owner === user?.id);
+      const myBusiness = businessesData.businesses.find(bs => {
+        console.log('Comparing business owner:', bs.owner, 'with user id:', user?.id);
+        return bs.owner === user?.id
+      });
       
+      console.log('Found business:', myBusiness);
+
       if (myBusiness) {
         const myPaymentOrders = paymentsData.orders.filter(
           order => order.cashier.business === myBusiness._id
@@ -108,18 +118,27 @@ function DashboardPage() {
           cashier => cashier.business === myBusiness._id
         );
 
+        console.log('Filtered payment orders:', myPaymentOrders);
+        console.log('Filtered cashiers:', myCashiers);
+
         setBusiness(myBusiness);
         setCashiers(myCashiers);
         setTransactions(myPaymentOrders);
+      } else {
+        console.log('No business found for current user');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }, [user]);
 
+  // Agregar log para ver cuando se monta el componente
   React.useEffect(() => {
+    console.log('Dashboard mounted, user state:', user);
     if (user) {
       fetchData();
+    } else {
+      console.log('No user available yet');
     }
   }, [fetchData, user]);
 
