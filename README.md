@@ -1,4 +1,4 @@
-# ChatterPay: WhatsApp Crypto Payment Gateway 🌐
+# ChatterPay: WhatsApp QR Code payments  🌐
 
 ![](https://img.shields.io/badge/Next.js-informational?style=flat&logo=next.js&logoColor=white&color=6aa6f8)
 ![](https://img.shields.io/badge/TypeScript-informational?style=flat&logo=typescript&logoColor=white&color=6aa6f8)
