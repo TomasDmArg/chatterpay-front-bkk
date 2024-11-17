@@ -21,37 +21,19 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 200, headers: response.headers });
   }
 
-  // Process requests with single quotes
-  if (request.body) {
-    let text = await request.text();
-    console.log('Incoming request body:', text); // Debug incoming data
+  // Process POST requests
+  if (request.method === 'POST') {
     try {
-      // Check if the text is already valid JSON
-      try {
-        JSON.parse(text);
-      } catch (e) {
-        // If not valid JSON, attempt to sanitize it
-        const sanitizedText = text
-          .replace(/(\w+)'/g, '$1"')  // Replace quotes after word chars
-          .replace(/'(\w+)/g, '"$1')  // Replace quotes before word chars
-          .replace(/'/g, '"')         // Replace any remaining single quotes
-          .replace(/(\w+)=(\w+)/g, '"$1":"$2"'); // Wrap key-value pairs in quotes
-        
-        console.log('Sanitized text:', sanitizedText); // Debug sanitized data
-        
-        // Attempt to parse the sanitized text
-        try {
-          JSON.parse(sanitizedText);
-          text = sanitizedText;
-        } catch (e) {
-          console.error('Unable to parse sanitized text:', e);
-          return response;
-        }
-      }
+      const body = await request.json();
       
-      const body = JSON.parse(text);
+      // Capture the parameters from the request body
+      const { paymentId, channel_user_id } = body;
       
-      if (body.paymentId && body.channel_user_id) {
+      // Capture the URL parameters
+      const { searchParams } = new URL(request.url);
+      const urlParams = Object.fromEntries(searchParams.entries());
+      
+      if (paymentId && channel_user_id) {
         const processedRequest = new NextRequest(request.url, {
           method: request.method,
           headers: request.headers,
@@ -61,14 +43,14 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next({
           request: processedRequest,
         });
+      } else {
+        return new NextResponse(JSON.stringify({ error: 'Missing required parameters' }), { status: 400 });
       }
     } catch (e) {
-      console.error('JSON parsing error:', e); // Debug parsing errors
-      return response;
+      console.error('Error processing POST request:', e);
+      return new NextResponse(JSON.stringify({ error: 'Error processing request' }), { status: 500 });
     }
   }
-
-  return response;
 }
 
 // Configure which routes should be handled by this middleware
