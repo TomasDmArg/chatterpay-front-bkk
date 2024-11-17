@@ -32,20 +32,37 @@ export async function middleware(request: NextRequest) {
       let paymentId: string | null = null;
       let channel_user_id: string | null = null;
 
+      // Parse body based on content type
       if (contentType.includes('application/x-www-form-urlencoded')) {
         // Parse form-urlencoded data
         const formData = new URLSearchParams(rawBody);
         paymentId = formData.get('paymentId');
         channel_user_id = formData.get('channel_user_id');
-      } else {
+      } else if (contentType.includes('application/json')) {
         try {
-          // Try to parse as JSON
+          // Only try to parse as JSON if content type is application/json
           const jsonData = JSON.parse(rawBody);
           paymentId = jsonData.paymentId;
           channel_user_id = jsonData.channel_user_id;
         } catch (e) {
-          console.error('Failed to parse JSON:', e);
+          return new NextResponse(
+            JSON.stringify({ 
+              error: 'Invalid JSON format',
+              details: e instanceof Error ? e.message : 'Unknown error'
+            }),
+            { 
+              status: 400,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
         }
+      } else if (rawBody.includes('=')) {
+        // Fallback: If body contains '=' character, try parsing as form data
+        const formData = new URLSearchParams(rawBody);
+        paymentId = formData.get('paymentId');
+        channel_user_id = formData.get('channel_user_id');
       }
 
       // Get URL parameters
@@ -64,14 +81,20 @@ export async function middleware(request: NextRequest) {
         const processedData = {
           paymentId,
           channel_user_id,
-          // Add any additional URL parameters
-          ...Object.fromEntries(searchParams.entries())
+          // Add any additional URL parameters, excluding the ones we already processed
+          ...Object.fromEntries(
+            Array.from(searchParams.entries())
+              .filter(([key]) => !['paymentId', 'channel_user_id'].includes(key))
+          )
         };
 
         // Clone the request with the processed data
         const processedRequest = new NextRequest(request.url, {
           method: request.method,
-          headers: request.headers,
+          headers: new Headers({
+            ...Object.fromEntries(request.headers),
+            'Content-Type': 'application/json'
+          }),
           body: JSON.stringify(processedData)
         });
 
@@ -82,7 +105,12 @@ export async function middleware(request: NextRequest) {
         return new NextResponse(
           JSON.stringify({ 
             error: 'Missing required parameters',
-            received: { paymentId, channel_user_id }
+            received: { 
+              paymentId, 
+              channel_user_id,
+              contentType,
+              bodyPreview: rawBody.slice(0, 100) // Include first 100 chars of body for debugging
+            }
           }),
           { 
             status: 400,
