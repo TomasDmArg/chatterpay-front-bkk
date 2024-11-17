@@ -14,99 +14,17 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY!;
  * POST /api/payments_demo/create
  */
 export async function POST(request: Request) {
-  try {
-    const headersList = headers();
-    const token = headersList.get('authorization')?.split(' ')[1];
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Missing authorization token' },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { 
-      amount, 
-      cashierId, 
-      currency = 'USDC', 
-      network = 'polygon' 
-    } = body;
-
-    // Validate required fields
-    if (!amount || !cashierId) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-    /**
-    // Get cashier details
-    const cashierResponse = await cashierService.getCashierById(cashierId);
-    const cashier = cashierResponse.cashier;
-
-    if (!cashier) {
-      return NextResponse.json(
-        { error: 'Cashier not found' },
-        { status: 404 }
-      );
-    }
-
-    // Get pending payments
-    const paymentsResponse = await paymentService.getAllPaymentOrders();
-    const pendingPayments = paymentsResponse.orders.filter(
-      order => order.cashier._id === cashierId && order.status === 'pending'
-    );
-
-    // Check pending payments limit
-    if (pendingPayments.length >= 10) {
-      return NextResponse.json(
-        { error: 'Maximum pending payments limit reached for this cashier' },
-        { status: 400 }
-      );
-    }**/
-
-    /*
-    // Generate unique payment ID
-    const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    // Create payment order in database
-    const paymentData = {
-      amount: parseFloat(amount),
-      cashier: cashierId,
-      network,
-      currency,
-      status: 'pending' as 'pending',
-      uniqueId,
-    };
-
-    // const response = paymentService.createPaymentOrder(paymentData);
-
-    // Initialize provider and signer
-    console.log(POLYGON_RPC_URL, PRIVATE_KEY)
-    const provider = new ethers.providers.JsonRpcProvider(POLYGON_RPC_URL);
-    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
-    console.log(POLYGON_RPC_URL, PRIVATE_KEY)
-
-    // Create blockchain payment order
-    const tx = await createOrder({
-        signer,
-        amount,
-        order_id: uniqueId,
-        token_address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174", // USDC on Polygon
-    });
-
-    // Wait for transaction confirmation
-    const receipt = await tx.wait();*/
-    
-    return NextResponse.json({ message: `Payment created successfully for ${amount} ${currency}, now the customer can scan the QR to pay! 🎉` }, { status: 200 });
-  } catch (error) {
-    console.error('Error creating payment');
+  const headersList = headers();
+  const token = headersList.get('authorization')?.split(' ')[1];
+  
+  if (!token) {
     return NextResponse.json(
-      { error: 'Failed to create payment' },
-      { status: 500 }
+      { error: 'Missing authorization token' },
+      { status: 401 }
     );
   }
+
+  return NextResponse.json({ message: `You paid USDC successfully! 🎉. You can see the receipt on Blockscout: https://polygon.blockscout.com/tx/0xc2cb11c2de5dd5c4231094a2b2b01332f8b796add7b8c860bd2351ab25e50414` }, { status: 200 });
 }
 
 /**
