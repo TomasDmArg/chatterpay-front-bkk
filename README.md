@@ -1,60 +1,91 @@
-# Next.js Project Template
+# ChatterPay: WhatsApp Crypto Payment Gateway 🌐
 
-This repository contains a blank Next.js project template with a variety of pre-configured tools and components to jumpstart your web development process.
+![](https://img.shields.io/badge/Next.js-informational?style=flat&logo=next.js&logoColor=white&color=6aa6f8)
+![](https://img.shields.io/badge/TypeScript-informational?style=flat&logo=typescript&logoColor=white&color=6aa6f8)
+![](https://img.shields.io/badge/React-informational?style=flat&logo=react&logoColor=white&color=6aa6f8)
+![](https://img.shields.io/badge/Polygon-informational?style=flat&logo=polygon&logoColor=white&color=6aa6f8)
+![](https://img.shields.io/badge/WhatsApp-informational?style=flat&logo=whatsapp&logoColor=white&color=6aa6f8)
 
-## Features
+> Making crypto payments accessible to billions through WhatsApp's familiar interface
 
-- [Next.js](https://nextjs.org/) - React framework for building web applications
-- [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [shadcn/ui](https://ui.shadcn.com/) - Re-usable components built with Radix UI and Tailwind CSS
-- [ESLint](https://eslint.org/) - Linting utility for JavaScript and TypeScript
-- [Million.js](https://million.js.org/) - Million Lint surfaces problematic code and automatically suggests ways to improve it.
-- [Bun](https://bun.sh/) - All-in-one JavaScript runtime & toolkit
-- Docker configuration for containerization
+## 🚀 Overview
 
-## Getting Started
+ChatterPay transforms WhatsApp into a secure payment gateway, enabling crypto transactions through simple text messages. Our AI-powered protocol allows businesses to generate QR codes and process payments without technical complexity, breaking down barriers to blockchain adoption.
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/your-repo-name.git
-   ```
+## About this repo:
 
-2. Navigate to the project directory:
-   ```
-   cd your-repo-name
-   ```
+This repo is for the QR Code management for business that integrates ChatterPay. 
 
-3. Install dependencies:
-   ```
-   bun install
-   ```
+**Smart Contracts:** https://github.com/TomasDmArg/chatterpay-sc-bkk/
 
-4. Run the development server:
-   ```
-   bun run dev
-   ```
+### ✨ Key Features
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+- **Multi-language Support**: Process payments through text or audio messages in any language
+- **QR Code Generation**: Easy QR code creation for business payments
+- **WhatsApp Integration**: Familiar chat interface for all transactions
+- **AI-Powered**: Smart message processing and user assistance
+- **Account Abstraction**: Seamless user experience with AA features
 
-## Docker
+## 🛠️ Tech Stack
 
-To build and run the Docker container:
+- **Frontend Framework**: Next.js 14
+- **Language**: TypeScript
+- **Blockchain**: Polygon Mainnet
+- **Account Abstraction**: Connect with ChatterPay SDK
+- **Message Processing**: AI-powered CRM platform
+- **API**: Next.js 14 API Routes
 
-1. Build the image:
-   ```
-   docker build -t nextjs-template .
-   ```
+## 🚦 Getting Started
 
-2. Run the container:
-   ```
-   docker run -p 3000:3000 nextjs-template
-   ```
+### Prerequisites
 
-## Contributing
+```bash
+node >= 18.0.0
+npm >= 9.0.0
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Installation
 
-## License
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/chatterpay-frontend.git
+cd chatterpay-frontend
+```
 
-[MIT](https://choosealicense.com/licenses/mit/)
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Configure environment variables
+```bash
+cp .env.example .env.local
+```
+
+4. Run development server
+```bash
+npm run dev
+```
+
+## 💡 Usage
+
+1. **Business Integration**
+   - Generate unique QR codes for payment collection
+   - Set up payment parameters and preferences
+   - Monitor transactions in real-time
+
+2. **Customer Payments**
+   - Scan QR code or receive payment link
+   - Send payment through WhatsApp chat
+   - Receive instant confirmation
+
+
+## 📞 Contact
+
+- Email: tomas@tdm.ar
+
+---
+
+<p align="center">
+  <i>Making crypto payments as simple as sending a message 💬</i>
+</p>
