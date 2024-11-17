@@ -84,53 +84,78 @@ function DashboardPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Agregar logs de debugging
       console.log('Fetching data with user:', user);
-
+  
       const promises = [
         businessService.getAllBusinesses(),
         paymentService.getAllPaymentOrders(),
         cashierService.getAllCashiers()
       ];
-
+  
       const [businessesData, paymentsData, cashiersData] = await Promise.all(promises) as [
         BusinessListData,
         PaymentOrderListData,
         CashierListData
       ];
-
-      // Log las respuestas
+  
       console.log('Businesses data:', businessesData);
-      console.log('User ID:', user?.id);
       
-      const myBusiness = businessesData.businesses.find(bs => {
-        console.log('Comparing business owner:', bs.owner, 'with user id:', user?.id);
-        return bs.owner === user?.id
-      });
-      
-      console.log('Found business:', myBusiness);
-
-      if (myBusiness) {
+      // Si solo hay un negocio, asumimos que es el del usuario actual
+      if (businessesData.businesses.length === 1) {
+        const myBusiness = businessesData.businesses[0];
+        console.log('Single business found:', myBusiness);
+        
         const myPaymentOrders = paymentsData.orders.filter(
           order => order.cashier.business === myBusiness._id
         );
         const myCashiers = cashiersData.cashiers.filter(
           cashier => cashier.business === myBusiness._id
         );
-
-        console.log('Filtered payment orders:', myPaymentOrders);
-        console.log('Filtered cashiers:', myCashiers);
-
+  
         setBusiness(myBusiness);
         setCashiers(myCashiers);
         setTransactions(myPaymentOrders);
       } else {
-        console.log('No business found for current user');
+        // Si hay múltiples negocios, intentamos encontrar el correcto
+        const myBusiness = businessesData.businesses.find(bs => {
+          // Normalizar ambos IDs a string y remover espacios
+          const ownerId = String(bs.owner).trim();
+          const userId = String(user?.id).trim();
+          console.log('Comparing business owner:', ownerId, 'with user id:', userId);
+          return ownerId === userId;
+        });
+  
+        if (myBusiness) {
+          console.log('Found business by owner match:', myBusiness);
+          
+          const myPaymentOrders = paymentsData.orders.filter(
+            order => order.cashier.business === myBusiness._id
+          );
+          const myCashiers = cashiersData.cashiers.filter(
+            cashier => cashier.business === myBusiness._id
+          );
+  
+          setBusiness(myBusiness);
+          setCashiers(myCashiers);
+          setTransactions(myPaymentOrders);
+        } else {
+          console.log('No business found for current user');
+          toast({
+            title: 'Warning',
+            description: 'No business found for your account. Please contact support.',
+            variant: 'destructive'
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load dashboard data',
+        variant: 'destructive'
+      });
     }
-  }, [user]);
+  }, [user, toast]);
 
   // Agregar log para ver cuando se monta el componente
   React.useEffect(() => {
